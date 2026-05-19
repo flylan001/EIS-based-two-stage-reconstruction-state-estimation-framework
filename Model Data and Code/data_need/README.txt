@@ -1,0 +1,1 @@
+The dataset of simplified current excitation responses and corresponding EIS is large in size and is therefore not directly included with the manuscript. Representative data and processing scripts are provided in the Supplementary Information. The full dataset can be made available from the corresponding author upon reasonable request.

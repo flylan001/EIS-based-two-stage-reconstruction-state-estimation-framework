@@ -1,0 +1,57 @@
+function model_plot(net,trainInfo,XTest,YTest,N_EIS,eis_mean_std)
+YPred = predict(net,XTest);   % 预测第1个样本
+disp(size(YPred));   % 1 × 2a
+figure,
+set(gcf, 'Position',[0 0 800 800],'Color','White');
+N = size(XTest,1);
+color = hsv(N)
+for i=1:100:size(XTest,1)
+    plot( (YPred(i,1:N_EIS)*eis_mean_std(1,2)+eis_mean_std(1,1) )*1000000,-(YPred(i,N_EIS+1:N_EIS*2)*eis_mean_std(2,2)+eis_mean_std(2,1) )*1000000,'*','Color',color(i,:),'LineWidth',1,'MarkerSize',8);hold on
+    plot( (YTest(i,1:N_EIS)*eis_mean_std(1,2)+eis_mean_std(1,1) )*1000000,-(YTest(i,N_EIS+1:N_EIS*2)*eis_mean_std(2,2)+eis_mean_std(2,1) )*1000000,'o','Color',color(i,:),'LineWidth',1,'MarkerSize',8)
+    %%axis equal
+end
+plo_all=[];
+plo=plot(-1000,0,'ok');
+plo_all=[plo_all plo];
+plo=plot(-1000,0,'*k');
+plo_all=[plo_all plo];
+
+leg=legend(plo_all,'Experiment EIS','Predicted EIS');
+set(leg,'Location','North','FontSize',24,'FontName','Times New Roman','Orientation','v','NumColumns',3,'box','off');
+leg.ItemTokenSize=[45,18];  %
+
+xlabel("\itZ' \rm(\mu\Omega)");ylabel('-\itZ" \rm(\mu\Omega)');
+set (gca,'LineWidth',3,'position',[0.22,0.18,0.76,0.8],'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1,'FontName','Times New Roman');
+set(gca,'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1.2,'FontName','Times New Roman');
+axis equal
+axis([300 600 -200 100])
+set(gca,'xtick',-1000:100:5000,'ytick',-2000:100:2000,'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1.2,'FontName','Times New Roman');
+
+
+
+%% RMSE
+EIS_exp_real = (YTest(:,1:N_EIS)*eis_mean_std(1,2)+eis_mean_std(1,1) )*1000000;
+EIS_exp_imag = (YTest(:,N_EIS+1:end)*eis_mean_std(2,2)+eis_mean_std(2,1) )*1000000;
+EIS_pre_real = (YPred(:,1:N_EIS)*eis_mean_std(1,2)+eis_mean_std(1,1) )*1000000;
+EIS_pre_imag = (YPred(:,N_EIS+1:end)*eis_mean_std(2,2)+eis_mean_std(2,1) )*1000000;
+rmse_EIS1 = rmse( EIS_exp_real , EIS_pre_real ,1);
+rmse_EIS2 = rmse( EIS_exp_imag , EIS_pre_imag ,1);
+
+freq = 10.^[4:-0.1:-1];
+figure,
+set(gcf, 'Position',[0 0 800 800],'Color','White');
+plot(freq,rmse_EIS1,'-*r','LineWidth',3,'MarkerSize',8);hold on
+plot(freq,rmse_EIS2,'-*b','LineWidth',3,'MarkerSize',8);
+set(gca, 'XScale', 'log','XDir', 'reverse'); % 设置横轴为对数坐标
+leg=legend('RMSE of Real Part','RMSE of Imaginary Part');
+set(leg,'Location','North','FontSize',24,'FontName','Times New Roman','Orientation','v','NumColumns',1,'box','off');
+leg.ItemTokenSize=[45,18];  %
+xlabel("Frequency (Hz)");ylabel('RMSE \rm(\mu\Omega)');
+set (gca,'LineWidth',3,'position',[0.22,0.18,0.76,0.8],'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1,'FontName','Times New Roman');
+set(gca,'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1.2,'FontName','Times New Roman');
+
+set(gca,'xtick',10.^[-1:1:4],'ytick',-2000:1:2000,'FontSize',N_EIS+1,'LabelFontSizeMultiplier',1.2,'FontName','Times New Roman');
+
+axis([0.01 100000 0.00 5])
+
+end
